@@ -9,42 +9,6 @@ if (process.argv[2] === undefined) {
 
 var lineReader = require('line-reader');
 
-/**
-var mock = {
- rows: 2,
- slots: 5,
- pools: 2,
- unvailables: [
-   {
-     row: 0,
-     slot: 0
-   }
- ],
- servers: [
-   {
-     slots: 3,
-     capacity: 10
-   },
-   {
-     slots: 3,
-     capacity: 10
-   },
-   {
-     slots: 2,
-     capacity: 5
-   },
-   {
-     slots: 1,
-     capacity: 5
-   },
-   {
-     slots: 1,
-     capacity: 1
-   }
- ]
-};
-*/
-
 function main(inputFile, outputFile) {
 	var datacenter = {};
 	var i = 0;
@@ -68,7 +32,7 @@ function main(inputFile, outputFile) {
 				unavailables: [],
 				servers: []
 			};
-			//console.log('Datacenter config:', datacenter);
+			
 		} else { //if not first line, we parse unavailable slots first then available slots
 			var position = line.split(' ');
 			if (position.length < 2) {
@@ -93,7 +57,7 @@ function main(inputFile, outputFile) {
 		console.log('Unavailable slots count:', datacenter.unavailables.length + '/' + datacenter.unavailableCount);
 		if (datacenter.servers.length === datacenter.serversCount && datacenter.unvailables.length === datacenter.unavailableCount) {
 			console.log('Finished parsing, launching the awesome...');
-			
+
 		} else {
 			throw new Error('Something gone wrong with config (well formed but data not consistant).');
 		}
