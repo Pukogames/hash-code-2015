@@ -11,5 +11,8 @@
     "url": "https://pukoren@bitbucket.org/pukogames/hash-code-2015.git"
   },
   "author": "pukogames (Gaëlle et Jonathan)",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "line-reader": "^0.2.4"
+  }
 }
