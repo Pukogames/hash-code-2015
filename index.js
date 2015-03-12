@@ -9,6 +9,10 @@ if (process.argv[2] === undefined) {
 
 var lineReader = require('line-reader');
 
+function writeOutputFile(data, outputFile) {
+
+}
+
 function main(inputFile, outputFile) {
 	var datacenter = {};
 	var i = 0;
@@ -57,7 +61,9 @@ function main(inputFile, outputFile) {
 		console.log('Unavailable slots count:', datacenter.unavailables.length + '/' + datacenter.unavailableCount);
 		if (datacenter.servers.length === datacenter.serversCount && datacenter.unvailables.length === datacenter.unavailableCount) {
 			console.log('Finished parsing, launching the awesome...');
-
+			//require('gaelle-module').compute(datacenter, function(res){
+			//writeOutputFile(data, outputFile);
+			//});
 		} else {
 			throw new Error('Something gone wrong with config (well formed but data not consistant).');
 		}
