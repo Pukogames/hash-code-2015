@@ -8,9 +8,16 @@ if (process.argv[2] === undefined) {
 }
 
 var lineReader = require('line-reader');
+var fs = require('fs');
 
 function writeOutputFile(data, outputFile) {
-
+	if (fs.existsSync(outputFile)) {
+		fs.truncateSync(outputFile, 0);
+	}
+	for (var i = 0; i < data.servers.length; i++) {
+		var server = data.servers[i];
+		fs.appendFileSync(outputFile, ((server.row === -1) ? 'x' : (server.row + ' ' + server.slot + ' ' + server.pool)) + '\n', encoding = 'utf8');
+	}
 }
 
 function main(inputFile, outputFile) {
@@ -36,7 +43,7 @@ function main(inputFile, outputFile) {
 				unavailables: [],
 				servers: []
 			};
-			
+
 		} else { //if not first line, we parse unavailable slots first then available slots
 			var position = line.split(' ');
 			if (position.length < 2) {
@@ -59,10 +66,10 @@ function main(inputFile, outputFile) {
 	}).then(function() {
 		console.log('Server count:', datacenter.servers.length + '/' + datacenter.serversCount);
 		console.log('Unavailable slots count:', datacenter.unavailables.length + '/' + datacenter.unavailableCount);
-		if (datacenter.servers.length === datacenter.serversCount && datacenter.unvailables.length === datacenter.unavailableCount) {
+		if (datacenter.servers.length === datacenter.serversCount && datacenter.unavailables.length === datacenter.unavailableCount) {
 			console.log('Finished parsing, launching the awesome...');
 			//require('gaelle-module').compute(datacenter, function(res){
-			//writeOutputFile(data, outputFile);
+			//writeOutputFile(res, outputFile || inputFile + '.out');
 			//});
 		} else {
 			throw new Error('Something gone wrong with config (well formed but data not consistant).');
