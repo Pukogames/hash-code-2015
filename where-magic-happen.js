@@ -114,7 +114,7 @@ function setPoolCapacity(id) {
   var i = 0,
       capacity = 0;
   for (i in pools[id].servers) {
-    capacity += pools[id].servers[i];
+    capacity += pools[id].servers[i].capacity;
   }
   pools[id].capacity = capacity;
 }
