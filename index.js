@@ -68,8 +68,8 @@ function main(inputFile, outputFile) {
 			} else { //else we put server in list
 				datacenter.servers.push({
 					index: i - datacenter.unavailableCount - 1,
-					row: parseInt(position[0]),
-					slot: parseInt(position[1])
+					slots: parseInt(position[0]),
+					capacity: parseInt(position[1])
 				});
 			}
 		} //end if first line
@@ -80,9 +80,9 @@ function main(inputFile, outputFile) {
 		console.log('Unavailable slots count:', datacenter.unavailables.length + '/' + datacenter.unavailableCount);
 		if (datacenter.servers.length === datacenter.serversCount && datacenter.unavailables.length === datacenter.unavailableCount) {
 			console.log('Finished parsing, launching the awesome...');
-			//require('gaelle-module').compute(datacenter, function(res){
-			//writeOutputFile(res, outputFile || inputFile + '.out');
-			//});
+			require('./where-magic-happen-2').compute(datacenter, function(res){
+				writeOutputFile(res, outputFile || inputFile + '.out');
+			});
 		} else {
 			throw new Error('Something gone wrong with config (well formed but data not consistant).');
 		}
