@@ -76,3 +76,50 @@ function sortServersByRatio() {
     }
   }
 }
+
+// -------------------------------------------------------------------- 2. Pools
+var pools = [];
+
+function setPools() {
+  var i = 0;
+  while (i < data.pools) {
+    pools.push({
+      capacity: 0,
+      servers: []
+    });
+    i++;
+  }
+}
+
+function setPoolCapacity(id) {
+  var i = 0,
+      capacity = 0;
+  for (i in pool[id].servers) {
+    capacity += pool[id].servers[i];
+  }
+  pool[id].capacity = capacity;
+}
+
+function getLowestPool() {
+  if (pools.length === 1) {
+    return 0;
+  }
+  var index = 0,
+      i = 1;
+  for (i in pools) {
+    if (pools[i].capacity < pool[index].capacity) {
+      index = i;
+    }
+  }
+  return index;
+}
+
+function dispatchServersInPools() {
+  var i = 0,
+      lowestPool = getLowestPool();
+  for (i in servers) {
+    pools[lowestPool].servers.push(servers[i]);
+    setPoolCapacity(lowestPool);
+    lowestPool = getLowestPool();
+  }
+}
