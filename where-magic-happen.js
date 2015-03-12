@@ -123,3 +123,27 @@ function dispatchServersInPools() {
     lowestPool = getLowestPool();
   }
 }
+
+// --------------------------------------------------------------------- 3. Rows
+var rows = data['rows'];
+
+function dispatchPoolsInRows() {
+  var pId = 0,
+      server = null,
+      rows = [],
+      rId = 0;
+  while (pools.length > 1) {
+    for (pId in pools) {
+      server = pools[pId].servers[0];
+      rows = getRowsByCapacityByPool(pool);
+      rId = 0;
+      while (!setServerInRow(row) || rId < rows.length) {
+        rId++;
+      }
+      pools[pId].servers.splice(0, 1);
+      if (pools[pId].servers.length === 0) {
+        pools.splice(pId, 1);
+      }
+    }
+  }
+}
