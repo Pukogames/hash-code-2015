@@ -17,22 +17,27 @@ var data = {
   ],
   servers: [
     {
+      index: 0,
       slots: 3,
       capacity: 10
     },
     {
+      index: 1,
       slots: 3,
       capacity: 10
     },
     {
+      index: 2,
       slots: 2,
       capacity: 5
     },
     {
+      index: 3,
       slots: 1,
       capacity: 5
     },
     {
+      index: 4,
       slots: 1,
       capacity: 1
     }
@@ -53,9 +58,12 @@ function initServers() {
       server = {};
   for (i in data.servers) {
     server = {
+      index: data.servers[i].index,
       slots: data.servers[i].slots,
       capacity: data.servers[i].capacity,
-      ratio: data.servers[i].capacity / data.servers[i].slots
+      ratio: data.servers[i].capacity / data.servers[i].slots,
+      row: -1,
+      slot: -1
     };
     servers.push(server)
   }
@@ -84,8 +92,10 @@ function setPools() {
   var i = 0;
   while (i < data.pools) {
     pools.push({
+      id: i,
       capacity: 0,
-      servers: []
+      servers: [],
+      rows: [{id: 0, capacity: 0}],
     });
     i++;
   }
@@ -127,17 +137,53 @@ function dispatchServersInPools() {
 // --------------------------------------------------------------------- 3. Rows
 var rows = data['rows'];
 
+function sortPoolsRowsByCapacity(pId) {
+  var i = 0,
+      j = 0,
+      length = pools[pId].rows.length,
+      tmp = null;
+  for (i=0; i<length; i++) {
+    for (j=0; j<length; j++) {
+      if (pools[pId].rows[j].capacity < pools[pId].rows[i].capacity) {
+        tmp = pools[pId].rows[i];
+        pools[pId].rows[i] = pools[pId].rows[j];
+        pools[pId].rows[j] = pools[pId].rows[i];
+      }
+    }
+  }
+}
+
+function setServerInRow(pId, sId, rId) {
+  var i = 0,
+      slots = pools[pId][sId].slots,
+      needSlots = slots,
+      slot = 0;
+  for (i in rows[rId]) {
+    if (rows[rId][i] === 0) {
+      slots--;
+    }
+    else {
+      slots = needSlots;
+    }
+    if (slots === 0) {
+      pools[pId][sId].row = rId;
+      pools[pId][sId].slot = i - (needSlots - 1);
+      pools[pId].rows[rId].capacity += needSlots;
+      return true;
+    }
+  }
+  return false;
+}
+
 function dispatchPoolsInRows() {
   var pId = 0,
-      server = null,
       rows = [],
       rId = 0;
   while (pools.length > 1) {
     for (pId in pools) {
-      server = pools[pId].servers[0];
-      rows = getRowsByCapacityByPool(pool);
+      sortPoolsRowsByCapacity(pId);
       rId = 0;
-      while (!setServerInRow(row) || rId < rows.length) {
+      while (!setServerInRow(pId, 0, rId) || rId < pools[pId].rows.length) {
         rId++;
       }
       pools[pId].servers.splice(0, 1);
