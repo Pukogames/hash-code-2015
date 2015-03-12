@@ -14,6 +14,17 @@ function writeOutputFile(data, outputFile) {
 	if (fs.existsSync(outputFile)) {
 		fs.truncateSync(outputFile, 0);
 	}
+
+	for (var j = 0; j < data.servers.length; j++) {
+		for (var k = 0; k < data.servers.length; k++) {
+			if (data.servers[k].index > data.servers[j].index) {
+				var tmp = data.servers[j];
+				data.servers[j] = data.servers[k];
+				data.servers[k] = tmp;
+			}
+		}
+	}
+
 	for (var i = 0; i < data.servers.length; i++) {
 		var server = data.servers[i];
 		fs.appendFileSync(outputFile, ((server.row === -1) ? 'x' : (server.row + ' ' + server.slot + ' ' + server.pool)) + '\n', encoding = 'utf8');
@@ -23,7 +34,7 @@ function writeOutputFile(data, outputFile) {
 function main(inputFile, outputFile) {
 	var datacenter = {};
 	var i = 0;
-
+	
 	console.log('Processing input file', inputFile);
 
 	lineReader.eachLine(inputFile, function(line) {
@@ -51,13 +62,14 @@ function main(inputFile, outputFile) {
 			}
 			if (i <= datacenter.unavailableCount) {
 				datacenter.unavailables.push({
-					row: line[0],
-					slot: line[1]
+					row: parseInt(position[0]),
+					slot: parseInt(position[1])
 				});
 			} else { //else we put server in list
 				datacenter.servers.push({
-					row: line[0],
-					slot: line[1]
+					index: i - datacenter.unavailableCount - 1,
+					row: parseInt(position[0]),
+					slot: parseInt(position[1])
 				});
 			}
 		} //end if first line
