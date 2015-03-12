@@ -16,7 +16,7 @@ function writeOutputFile(data, outputFile) {
 	}
 
 	for (var j = 0; j < data.servers.length; j++) {
-		for (var k = 0; k < data.servers.length; k++) {
+		for (var k = 0; k < data.servers.length; k++)  {
 			if (data.servers[k].index > data.servers[j].index) {
 				var tmp = data.servers[j];
 				data.servers[j] = data.servers[k];
@@ -34,7 +34,7 @@ function writeOutputFile(data, outputFile) {
 function main(inputFile, outputFile) {
 	var datacenter = {};
 	var i = 0;
-	
+
 	console.log('Processing input file', inputFile);
 
 	lineReader.eachLine(inputFile, function(line) {
@@ -46,8 +46,9 @@ function main(inputFile, outputFile) {
 			}
 
 			datacenter = {
-				rows: config[0],
-				slots: config[1],
+				rows: [],
+				rowsCount: config[0],
+				slotsCount: config[1],
 				unavailableCount: parseInt(config[2]),
 				serversCount: parseInt(config[4]),
 				pools: config[3],
@@ -55,6 +56,12 @@ function main(inputFile, outputFile) {
 				servers: []
 			};
 
+			for (var rCounter = 0; rCounter < datacenter.rowsCount; rCounter++) {
+				datacenter.rows.push([]);
+				for (var sCounter = 0; sCounter < datacenter.slotsCount; sCounter++) {
+					datacenter.rows[rCounter].push(0);
+				}
+			}
 		} else { //if not first line, we parse unavailable slots first then available slots
 			var position = line.split(' ');
 			if (position.length < 2) {
@@ -65,6 +72,7 @@ function main(inputFile, outputFile) {
 					row: parseInt(position[0]),
 					slot: parseInt(position[1])
 				});
+				datacenter.rows[parseInt(position[0])][parseInt(position[1])] = -1;
 			} else { //else we put server in list
 				datacenter.servers.push({
 					index: i - datacenter.unavailableCount - 1,
@@ -80,7 +88,7 @@ function main(inputFile, outputFile) {
 		console.log('Unavailable slots count:', datacenter.unavailables.length + '/' + datacenter.unavailableCount);
 		if (datacenter.servers.length === datacenter.serversCount && datacenter.unavailables.length === datacenter.unavailableCount) {
 			console.log('Finished parsing, launching the awesome...');
-			require('./where-magic-happen-2').compute(datacenter, function(res){
+			require('./where-magic-happen-2').compute(datacenter, function(res) {
 				writeOutputFile(res, outputFile || inputFile + '.out');
 			});
 		} else {
