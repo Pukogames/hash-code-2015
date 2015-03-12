@@ -15,18 +15,18 @@ function writeOutputFile(data, outputFile) {
 		fs.truncateSync(outputFile, 0);
 	}
 
-	for (var j = 0; j < data.servers.length; j++) {
-		for (var k = 0; k < data.servers.length; k++)  {
-			if (data.servers[k].index > data.servers[j].index) {
-				var tmp = data.servers[j];
-				data.servers[j] = data.servers[k];
-				data.servers[k] = tmp;
+	for (var j = 0; j < data.length; j++) {
+		for (var k = 0; k < data.length; k++)  {
+			if (data[k].index > data[j].index) {
+				var tmp = data[j];
+				data[j] = data[k];
+				data[k] = tmp;
 			}
 		}
 	}
 
-	for (var i = 0; i < data.servers.length; i++) {
-		var server = data.servers[i];
+	for (var i = 0; i < data.length; i++) {
+		var server = data[i];
 		fs.appendFileSync(outputFile, ((server.row === -1) ? 'x' : (server.row + ' ' + server.slot + ' ' + server.pool)) + '\n', encoding = 'utf8');
 	}
 }

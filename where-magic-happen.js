@@ -51,8 +51,10 @@ exports.compute = function (_data, callback) {
   setPools();
   dispatchServersInPools();
   dispatchPoolsInRows();
-  return 'magie';
+  return callback(computedServers);
 };
+
+var computedServers = [];
 
 // ------------------------------------------------------------------ 1. Servers
 var servers = [];
@@ -83,7 +85,7 @@ function sortServersByRatio() {
       if (servers[j].ratio > servers[i].ratio) {
         tmp = servers[i];
         servers[i] = servers[j];
-        servers[j] = servers[i];
+        servers[j] = tmp;
       }
     }
   }
@@ -156,7 +158,7 @@ function sortPoolsRowsByCapacity(pId) {
       if (pools[pId].rows[j].capacity < pools[pId].rows[i].capacity) {
         tmp = pools[pId].rows[i];
         pools[pId].rows[i] = pools[pId].rows[j];
-        pools[pId].rows[j] = pools[pId].rows[i];
+        pools[pId].rows[j] = tmp;
       }
     }
   }
@@ -164,6 +166,7 @@ function sortPoolsRowsByCapacity(pId) {
 
 function setServerInRow(pId, sId, rId) {
   var i = 0,
+      j = 0,
       slots = pools[pId].servers[sId].slots,
       needSlots = slots,
       slot = 0;
@@ -175,9 +178,12 @@ function setServerInRow(pId, sId, rId) {
       slots = needSlots;
     }
     if (slots === 0) {
+      for (j=0; j<needSlots; j++) {
+        rows[rId][i - (needSlots - 1)+j] = -1;
+      }
       pools[pId].servers[sId].row = rId;
       pools[pId].servers[sId].slot = i - (needSlots - 1);
-      pools[pId].rows[rId].capacity += needSlots;
+      pools[pId].rows[rId].capacity += pools[pId].servers[sId].capacity;
       return true;
     }
   }
@@ -195,6 +201,12 @@ function dispatchPoolsInRows() {
       while (!setServerInRow(pId, 0, rId) && rId < pools[pId].rows.length) {
         rId++;
       }
+      computedServers.push({
+        index: pools[pId].servers[0].index,
+        row: pools[pId].servers[0].row,
+        slot: pools[pId].servers[0].slot,
+        pool: pId
+      });
       pools[pId].servers.splice(0, 1);
       if (pools[pId].servers.length === 0) {
         pools.splice(pId, 1);
