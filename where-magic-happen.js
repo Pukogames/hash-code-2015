@@ -44,3 +44,35 @@ exports.foo = function (_data) {
   // ...
   return 'magie';
 };
+
+// ------------------------------------------------------------------ 1. Servers
+var servers = [];
+
+function initServers() {
+  var i = 0,
+      server = {};
+  for (i in data.servers) {
+    server = {
+      slots: data.servers[i].slots,
+      capacity: data.servers[i].capacity,
+      ratio: data.servers[i].capacity / data.servers[i].slots
+    };
+    servers.push(server)
+  }
+}
+
+function sortServersByRatio() {
+  var i = 0,
+      j = 0,
+      length = servers.length,
+      tmp = null;
+  for (i=0; i<length; i++) {
+    for (j=0; j<length; j++) {
+      if (servers[j].ratio > servers[i].ratio) {
+        tmp = servers[i];
+        servers[i] = servers[j];
+        servers[j] = servers[i];
+      }
+    }
+  }
+}
