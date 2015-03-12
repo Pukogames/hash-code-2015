@@ -44,9 +44,13 @@ var data = {
   ]
 };
 
-exports.foo = function (_data) {
+exports.compute = function (_data, callback) {
   data = _data;
-  // ...
+  initServers();
+  sortServersByRatio();
+  setPools();
+  dispatchServersInPools();
+  dispatchPoolsInRows();
   return 'magie';
 };
 
@@ -65,7 +69,7 @@ function initServers() {
       row: -1,
       slot: -1
     };
-    servers.push(server)
+    servers.push(server);
   }
 }
 
@@ -89,14 +93,19 @@ function sortServersByRatio() {
 var pools = [];
 
 function setPools() {
-  var i = 0;
+  var i = 0,
+      j = 0;
   while (i < data.pools) {
-    pools.push({
+    var pool = {
       id: i,
       capacity: 0,
       servers: [],
-      rows: [{id: 0, capacity: 0}],
-    });
+      rows: [],
+    };
+    for (j=0; j<data.rowsCount; j++) {
+      pool.rows.push({id: 0, capacity: 0});
+    }
+    pools.push(pool);
     i++;
   }
 }
@@ -104,10 +113,10 @@ function setPools() {
 function setPoolCapacity(id) {
   var i = 0,
       capacity = 0;
-  for (i in pool[id].servers) {
-    capacity += pool[id].servers[i];
+  for (i in pools[id].servers) {
+    capacity += pools[id].servers[i];
   }
-  pool[id].capacity = capacity;
+  pools[id].capacity = capacity;
 }
 
 function getLowestPool() {
@@ -117,7 +126,7 @@ function getLowestPool() {
   var index = 0,
       i = 1;
   for (i in pools) {
-    if (pools[i].capacity < pool[index].capacity) {
+    if (pools[i].capacity < pools[index].capacity) {
       index = i;
     }
   }
@@ -155,7 +164,7 @@ function sortPoolsRowsByCapacity(pId) {
 
 function setServerInRow(pId, sId, rId) {
   var i = 0,
-      slots = pools[pId][sId].slots,
+      slots = pools[pId].servers[sId].slots,
       needSlots = slots,
       slot = 0;
   for (i in rows[rId]) {
@@ -166,8 +175,8 @@ function setServerInRow(pId, sId, rId) {
       slots = needSlots;
     }
     if (slots === 0) {
-      pools[pId][sId].row = rId;
-      pools[pId][sId].slot = i - (needSlots - 1);
+      pools[pId].servers[sId].row = rId;
+      pools[pId].servers[sId].slot = i - (needSlots - 1);
       pools[pId].rows[rId].capacity += needSlots;
       return true;
     }
@@ -183,7 +192,7 @@ function dispatchPoolsInRows() {
     for (pId in pools) {
       sortPoolsRowsByCapacity(pId);
       rId = 0;
-      while (!setServerInRow(pId, 0, rId) || rId < pools[pId].rows.length) {
+      while (!setServerInRow(pId, 0, rId) && rId < pools[pId].rows.length) {
         rId++;
       }
       pools[pId].servers.splice(0, 1);

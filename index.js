@@ -88,7 +88,7 @@ function main(inputFile, outputFile) {
 		console.log('Unavailable slots count:', datacenter.unavailables.length + '/' + datacenter.unavailableCount);
 		if (datacenter.servers.length === datacenter.serversCount && datacenter.unavailables.length === datacenter.unavailableCount) {
 			console.log('Finished parsing, launching the awesome...');
-			require('./where-magic-happen-2').compute(datacenter, function(res) {
+			require('./where-magic-happen').compute(datacenter, function(res) {
 				writeOutputFile(res, outputFile || inputFile + '.out');
 			});
 		} else {
