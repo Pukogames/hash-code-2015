@@ -45,7 +45,7 @@ function sortServersByRatio() {
       tmp = null;
   for (i=0; i<length; i++) {
     for (j=0; j<length; j++) {
-      if (servers[j].ratio > servers[i].ratio) {
+      if (servers[j].ratio < servers[i].ratio) {
         tmp = servers[i];
         servers[i] = servers[j];
         servers[j] = tmp;
@@ -114,7 +114,7 @@ function sortPoolsRowsByCapacity(pId) {
       tmp = null;
   for (i=0; i<length; i++) {
     for (j=0; j<length; j++) {
-      if (pools[pId].rows[j].capacity < pools[pId].rows[i].capacity) {
+      if (pools[pId].rows[j].capacity > pools[pId].rows[i].capacity) {
         tmp = pools[pId].rows[i];
         pools[pId].rows[i] = pools[pId].rows[j];
         pools[pId].rows[j] = tmp;
@@ -130,7 +130,6 @@ function setServerInRow(pId, sId, rId) {
       needSlots = slots,
       slot = 0;
   for (i in rows[rId]) {
-    console.log(i)
     if (rows[rId][i] === 0) {
       slots--;
     }
